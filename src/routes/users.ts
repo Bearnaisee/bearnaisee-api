@@ -5,7 +5,7 @@ import { Users } from "../entities/Users";
 
 export default (server: Application) => {
   server.post("/user/create", async (req: Request, res: Response) => {
-    if (!req?.body?.username?.length || !req?.body?.email?.length || !req?.body?.password?.length) {
+    if (!req?.body?.username?.trim()?.length || !req?.body?.email?.trim()?.length || !req?.body?.password?.length) {
       res.status(400).send({ msg: "Missing data", successful: false });
       return;
     }
@@ -24,8 +24,8 @@ export default (server: Application) => {
       .createQueryBuilder("user")
       .where("user.email = :email OR user.username = :username")
       .setParameters({
-        email: req.body.email.toLowerCase(),
-        username: req.body.username.toLowerCase(),
+        email: req.body.email.toLowerCase().trim(),
+        username: req.body.username.toLowerCase().trim(),
       })
       .getMany();
 
@@ -33,8 +33,8 @@ export default (server: Application) => {
       res.status(409).send({
         msg: "Username or email already in use",
         successful: false,
-        usernameTaken: existingUsers.findIndex((u) => u.username === req.body.username.toLowerCase()) !== -1,
-        emailTaken: existingUsers.findIndex((u) => u.email === req.body.email.toLowerCase()) !== -1,
+        usernameTaken: existingUsers.findIndex((u) => u.username === req.body.username.toLowerCase().trim()) !== -1,
+        emailTaken: existingUsers.findIndex((u) => u.email === req.body.email.toLowerCase().trim()) !== -1,
       });
       return;
     }
@@ -44,8 +44,8 @@ export default (server: Application) => {
     await userRepository
       .save({
         ...user,
-        username: req.body.username.toLowerCase(),
-        email: req.body.email.toLowerCase(),
+        username: req.body.username.toLowerCase().trim(),
+        email: req.body.email.toLowerCase().trim(),
         password: hashedPassword,
         role_id: 1,
       })
@@ -71,7 +71,7 @@ export default (server: Application) => {
   });
 
   server.post("/user/login", async (req: Request, res: Response) => {
-    if (!req?.body?.email?.length || !req?.body?.password?.length) {
+    if (!req?.body?.email?.trim()?.length || !req?.body?.password?.length) {
       res.status(400).send({ msg: "Missing data", successful: false });
       return;
     }
@@ -79,7 +79,7 @@ export default (server: Application) => {
     const userRepository = getRepository(Users);
 
     const user = await userRepository.findOne({
-      email: req.body.email.toLowerCase(),
+      email: req.body.email.toLowerCase().trim(),
     });
 
     if (user) {
