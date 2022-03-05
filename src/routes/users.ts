@@ -53,7 +53,11 @@ export default (server: Application) => {
         res.status(200).send({
           msg: "Created new user succesfully",
           successful: true,
-          user: result,
+          user: {
+            ...result,
+            password: undefined,
+            bannedAt: undefined,
+          },
         }),
       )
       .catch((error) => {
@@ -82,7 +86,15 @@ export default (server: Application) => {
       const correctPassword = await verifyHash(user.password, req.body.password);
 
       if (correctPassword) {
-        res.status(200).send({ msg: "Logged in successful", user, successful: true });
+        res.status(200).send({
+          msg: "Logged in successful",
+          user: {
+            ...user,
+            password: undefined,
+            bannedAt: undefined,
+          },
+          successful: true,
+        });
         return;
       }
 
