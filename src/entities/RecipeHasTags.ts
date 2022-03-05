@@ -1,4 +1,4 @@
-import { Column, Entity, Index, JoinColumn, ManyToOne } from "typeorm";
+import { Entity, Index, JoinColumn, ManyToOne, PrimaryColumn } from "typeorm";
 import { Recipes } from "./Recipes";
 import { Tags } from "./Tags";
 
@@ -7,10 +7,10 @@ import { Tags } from "./Tags";
 })
 @Entity("recipe_has_tags", { schema: "public" })
 export class RecipeHasTags {
-  @Column("integer", { name: "recipe_id", unique: true })
+  @PrimaryColumn("integer", { name: "recipe_id", unique: true })
   recipeId: number;
 
-  @Column("integer", { name: "tag_id", unique: true })
+  @PrimaryColumn("integer", { name: "tag_id", unique: true })
   tagId: number;
 
   @ManyToOne(() => Recipes, (recipes) => recipes.recipeHasTags)

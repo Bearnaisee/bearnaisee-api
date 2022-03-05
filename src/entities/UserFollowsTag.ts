@@ -1,4 +1,4 @@
-import { Column, Entity, Index, JoinColumn, ManyToOne } from "typeorm";
+import { Entity, Index, JoinColumn, ManyToOne, PrimaryColumn } from "typeorm";
 import { Tags } from "./Tags";
 import { Users } from "./Users";
 
@@ -7,10 +7,10 @@ import { Users } from "./Users";
 })
 @Entity("user_follows_tag", { schema: "public" })
 export class UserFollowsTag {
-  @Column("integer", { name: "user_id", unique: true })
+  @PrimaryColumn("integer", { name: "user_id", unique: true })
   userId: number;
 
-  @Column("integer", { name: "tag_id", unique: true })
+  @PrimaryColumn("integer", { name: "tag_id", unique: true })
   tagId: number;
 
   @ManyToOne(() => Tags, (tags) => tags.userFollowsTags)

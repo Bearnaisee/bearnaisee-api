@@ -1,4 +1,4 @@
-import { Column, Entity, Index, JoinColumn, ManyToOne } from "typeorm";
+import { Column, Entity, Index, JoinColumn, ManyToOne, PrimaryColumn } from "typeorm";
 import { Users } from "./Users";
 
 @Index("user_follows_user_user_id_follower_id_key", ["followerId", "userId"], {
@@ -6,10 +6,10 @@ import { Users } from "./Users";
 })
 @Entity("user_follows_user", { schema: "public" })
 export class UserFollowsUser {
-  @Column("integer", { name: "user_id", unique: true })
+  @PrimaryColumn("integer", { name: "user_id", unique: true })
   userId: number;
 
-  @Column("integer", { name: "follower_id", unique: true })
+  @PrimaryColumn("integer", { name: "follower_id", unique: true })
   followerId: number;
 
   @Column("timestamp with time zone", {

@@ -1,4 +1,4 @@
-import { Column, Entity, Index, JoinColumn, ManyToOne } from "typeorm";
+import { Column, Entity, Index, JoinColumn, ManyToOne, PrimaryColumn } from "typeorm";
 import { Recipes } from "./Recipes";
 import { Users } from "./Users";
 
@@ -7,10 +7,10 @@ import { Users } from "./Users";
 })
 @Entity("user_likes_recipe", { schema: "public" })
 export class UserLikesRecipe {
-  @Column("integer", { name: "recipe_id", unique: true })
+  @PrimaryColumn("integer", { name: "recipe_id", unique: true })
   recipeId: number;
 
-  @Column("integer", { name: "user_id", unique: true })
+  @PrimaryColumn("integer", { name: "user_id", unique: true })
   userId: number;
 
   @Column("timestamp with time zone", {

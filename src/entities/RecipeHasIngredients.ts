@@ -1,4 +1,4 @@
-import { Column, Entity, Index, JoinColumn, ManyToOne } from "typeorm";
+import { Column, Entity, Index, JoinColumn, ManyToOne, PrimaryColumn } from "typeorm";
 import { Ingredients } from "./Ingredients";
 import { Metrics } from "./Metrics";
 import { Recipes } from "./Recipes";
@@ -8,13 +8,13 @@ import { Recipes } from "./Recipes";
 })
 @Entity("recipe_has_ingredients", { schema: "public" })
 export class RecipeHasIngredients {
-  @Column("integer", { name: "recipe_id", unique: true })
+  @PrimaryColumn("integer", { name: "recipe_id", unique: true })
   recipeId: number;
 
-  @Column("integer", { name: "ingredient_id", unique: true })
+  @PrimaryColumn("integer", { name: "ingredient_id", unique: true })
   ingredientId: number;
 
-  @Column("integer", { name: "metric_id", unique: true })
+  @PrimaryColumn("integer", { name: "metric_id", unique: true })
   metricId: number;
 
   @Column("numeric", { name: "amount", nullable: true })
