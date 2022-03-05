@@ -17,5 +17,6 @@
     "sourceMap": false,
     "rootDir": "src"
   },
-  "include": ["src/**/*", "src/**/*.ts", "tests/**/*.ts", "types/**/*.d.ts", "types/**/*.ts"]
+  "include": ["src/**/*", "src/**/*.ts", "tests/**/*.ts", "types/**/*.d.ts", "types/**/*.ts"],
+  "exclude": ["src/__tests__/"]
 }
