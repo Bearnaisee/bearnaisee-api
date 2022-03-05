@@ -6,14 +6,16 @@ import { Users } from "../entities/Users";
 export default (server: Application) => {
   server.post("/user/create", async (req: Request, res: Response) => {
     if (!req?.body?.username?.length || !req?.body?.email?.length || !req?.body?.password?.length) {
-      return res.status(400).send({ msg: "Missing data", successful: false });
+      res.status(400).send({ msg: "Missing data", successful: false });
+      return;
     }
 
     const hashedPassword = await hashString(req.body.password);
     const passwordVerification = await verifyHash(hashedPassword, req.body.password);
 
     if (!hashedPassword || !passwordVerification) {
-      return res.status(500).send({ msg: "Something went wrong hashing password", successful: false });
+      res.status(500).send({ msg: "Something went wrong hashing password", successful: false });
+      return;
     }
 
     const userRepository = getRepository(Users);
@@ -28,12 +30,13 @@ export default (server: Application) => {
       .getMany();
 
     if (existingUsers?.length) {
-      return res.status(409).send({
+      res.status(409).send({
         msg: "Username or email already in use",
         successful: false,
         usernameTaken: existingUsers.findIndex((u) => u.username === req.body.username.toLowerCase()) !== -1,
         emailTaken: existingUsers.findIndex((u) => u.email === req.body.email.toLowerCase()) !== -1,
       });
+      return;
     }
 
     const user = new Users();
@@ -65,7 +68,8 @@ export default (server: Application) => {
 
   server.post("/user/login", async (req: Request, res: Response) => {
     if (!req?.body?.email?.length || !req?.body?.password?.length) {
-      return res.status(400).send({ msg: "Missing data", successful: false });
+      res.status(400).send({ msg: "Missing data", successful: false });
+      return;
     }
 
     const userRepository = getRepository(Users);
@@ -78,12 +82,14 @@ export default (server: Application) => {
       const correctPassword = await verifyHash(user.password, req.body.password);
 
       if (correctPassword) {
-        return res.status(200).send({ msg: "idk fam", user, successful: true });
+        res.status(200).send({ msg: "Logged in successful", user, successful: true });
+        return;
       }
 
-      return res.status(400).send({ msg: "Wrong password", successful: false });
+      res.status(400).send({ msg: "Wrong password", successful: false });
+      return;
     }
 
-    return res.status(404).send({ msg: "User not found", successful: false });
+    res.status(404).send({ msg: "User not found", successful: false });
   });
 };
