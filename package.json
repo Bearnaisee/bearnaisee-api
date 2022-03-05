@@ -1,57 +1,57 @@
 {
-   "name": "bearnaisee-api",
-   "version": "0.0.1",
-   "description": "",
-   "main": "src/index.ts",
-   "private": "true",
-   "scripts": {
-      "start": "ts-node src/index.ts",
-      "prod": "node dist/",
-      "lint": "eslint --ext \".js,.mjs,.ts\" --ignore-path .gitignore .",
-      "lint-fix": "eslint --fix --ext \".js,.mjs,.ts\" --ignore-path .gitignore .",
-      "format": "prettier --ignore-path .gitignore --write .",
-      "format-lint-fix": "npm run lint-fix; npm run format",
-      "build": "tsc",
-      "typeorm": "node --require ts-node/register ./node_modules/typeorm/cli.js"
-   },
-   "repository": {
-      "type": "git",
-      "url": "git+https://github.com/Bearnaisee/bearnaisee-api.git"
-   },
-   "author": "",
-   "bugs": {
-      "url": "https://github.com/Bearnaisee/bearnaisee-api/issues"
-   },
-   "homepage": "https://github.com/Bearnaisee/bearnaisee-api#readme",
-   "settings": {
-      "import/resolver": {
-         "typescript": {}
-      }
-   },
-   "dependencies": {
-      "dotenv": "^16.0.0",
-      "express": "^4.17.2",
-      "pg": "^8.4.0",
-      "reflect-metadata": "^0.1.13",
-      "typeorm": "0.2.44"
-   },
-   "devDependencies": {
-      "@types/eslint": "^8.4.1",
-      "@types/eslint-plugin-prettier": "^3.1.0",
-      "@types/express": "^4.17.13",
-      "@types/node": "^16.11.10",
-      "@types/pg": "^8.6.4",
-      "@types/prettier": "^2.4.4",
-      "@typescript-eslint/eslint-plugin": "^5.13.0",
-      "@typescript-eslint/parser": "^5.13.0",
-      "eslint": "^8.9.0",
-      "eslint-config-airbnb-base": "^15.0.0",
-      "eslint-config-prettier": "^8.3.0",
-      "eslint-plugin-import": "^2.25.4",
-      "eslint-plugin-prettier": "^4.0.0",
-      "prettier": "^2.5.1",
-      "ts-node": "10.4.0",
-      "ts-node-dev": "^1.1.8",
-      "typescript": "4.5.2"
-   }
+  "name": "bearnaisee-api",
+  "version": "0.0.1",
+  "description": "",
+  "main": "src/index.ts",
+  "private": "true",
+  "scripts": {
+    "start": "ts-node src/index.ts",
+    "prod": "node dist/",
+    "lint": "eslint --ext \".js,.mjs,.ts\" --ignore-path .gitignore .",
+    "lint-fix": "eslint --fix --ext \".js,.mjs,.ts\" --ignore-path .gitignore .",
+    "format": "prettier --ignore-path .gitignore --write .",
+    "format-lint-fix": "npm run lint-fix; npm run format",
+    "build": "tsc",
+    "typeorm": "node --require ts-node/register ./node_modules/typeorm/cli.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Bearnaisee/bearnaisee-api.git"
+  },
+  "author": "",
+  "bugs": {
+    "url": "https://github.com/Bearnaisee/bearnaisee-api/issues"
+  },
+  "homepage": "https://github.com/Bearnaisee/bearnaisee-api#readme",
+  "settings": {
+    "import/resolver": {
+      "typescript": {}
+    }
+  },
+  "dependencies": {
+    "dotenv": "^16.0.0",
+    "express": "^4.17.2",
+    "pg": "^8.4.0",
+    "reflect-metadata": "^0.1.13",
+    "typeorm": "0.2.44"
+  },
+  "devDependencies": {
+    "@types/eslint": "^8.4.1",
+    "@types/eslint-plugin-prettier": "^3.1.0",
+    "@types/express": "^4.17.13",
+    "@types/node": "^16.11.10",
+    "@types/pg": "^8.6.4",
+    "@types/prettier": "^2.4.4",
+    "@typescript-eslint/eslint-plugin": "^5.13.0",
+    "@typescript-eslint/parser": "^5.13.0",
+    "eslint": "^8.9.0",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-plugin-import": "^2.25.4",
+    "eslint-plugin-prettier": "^4.0.0",
+    "prettier": "^2.5.1",
+    "ts-node": "10.4.0",
+    "ts-node-dev": "^1.1.8",
+    "typescript": "4.5.2"
+  }
 }
