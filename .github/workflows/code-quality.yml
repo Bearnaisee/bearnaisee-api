@@ -31,6 +31,7 @@ jobs:
           key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-node-
+
       - name: Install dependencies 👨🏻‍💻
         run: npm ci
 
@@ -39,6 +40,9 @@ jobs:
 
       - name: Run lint 👀
         run: npm run lint
+
+      - name: Run test 👀
+        run: npm run test
 
       - uses: EndBug/add-and-commit@v7
         with:
