@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "lib": ["es5", "es6"],
+    "target": "es5",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "allowJs": false,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "noImplicitAny": false,
+    "removeComments": true,
+    "skipLibCheck": true,
+    "strict": false,
+    "outDir": "dist",
+    "sourceMap": false,
+    "rootDir": "src"
+  },
+  "include": ["src/**/*", "src/**/*.ts", "tests/**/*.ts", "types/**/*.d.ts", "types/**/*.ts"]
+}

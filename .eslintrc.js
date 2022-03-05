@@ -3,20 +3,19 @@ module.exports = {
     es2021: true,
     node: true,
   },
-  extends: ["eslint:recommended", "eslint-config-airbnb-base", "prettier"],
-  parserOptions: {
-    ecmaVersion: 12,
-    sourceType: "module",
-  },
+  parser: "@typescript-eslint/parser",
+  plugins: ["@typescript-eslint"],
+  extends: [
+    "plugin:@typescript-eslint/eslint-recommended",
+    "plugin:@typescript-eslint/recommended",
+    "eslint-config-airbnb-base",
+    "prettier",
+  ],
   rules: {
-    "no-restricted-syntax": "off",
-    "no-continue": "off",
-    "no-await-in-loop": "off",
-    "no-underscore-dangle": "off",
-    "no-plusplus": "off",
-    "no-return-await": "off",
-
-    // off because it is a must for this version of node?
+    "import/prefer-default-export": "off",
+    "import/no-unresolved": "off",
     "import/extensions": "off",
+
+    "no-console": "off",
   },
 };
