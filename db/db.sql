@@ -1,11 +1,21 @@
+CREATE TABLE user_roles(
+    id SERIAL PRIMARY KEY,
+    role VARCHAR(20) NOT NULL,
+    UNIQUE(role)
+);
+INSERT INTO user_roles(role)
+VALUES('user');
+INSERT INTO user_roles(role)
+VALUES('admin');
 CREATE TABLE users (
     id SERIAL PRIMARY KEY,
     username VARCHAR(50) NOT NULL,
+    display_name VARCHAR(50),
+    role_id INT NOT NULL REFERENCES user_roles(id),
     email VARCHAR(255) NOT NULL,
     password VARCHAR(255) NOT NULL,
     avatar_url VARCHAR(255) DEFAULT NULL,
     description VARCHAR(255) DEFAULT NULL,
-    display_name VARCHAR(50),
     location VARCHAR(40) DEFAULT NULL,
     website VARCHAR(40) DEFAULT NULL,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
@@ -42,6 +52,7 @@ CREATE TABLE recipes (
     description TEXT,
     cover_image VARCHAR(255),
     public BOOLEAN DEFAULT TRUE,
+    estimated_time INT,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     edited_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     UNIQUE (slug, user_id)
@@ -51,7 +62,6 @@ CREATE TABLE recipe_steps (
     recipe_id INT NOT NULL REFERENCES recipes(id),
     step SMALLINT DEFAULT 1,
     optional BOOLEAN DEFAULT FALSE,
-    estimated_time INT,
     content TEXT
 );
 CREATE TABLE recipe_comments (
