@@ -4,12 +4,13 @@ import express, { Request, Response, NextFunction } from "express";
 import fs from "fs";
 import dotenv from "dotenv";
 import os from "os";
+import { dbConfig } from "./config/database";
 
 if (process.env.NODE_ENV !== "production") dotenv.config();
 
 const PORT = process.env.PORT || 1234;
 
-createConnection()
+createConnection(dbConfig)
   .then(async () => {
     const app = express();
 
