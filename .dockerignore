@@ -1,0 +1,5 @@
+db
+.git
+dist
+node_modules
+src/__tests__

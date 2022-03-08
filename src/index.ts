@@ -2,6 +2,7 @@ import "reflect-metadata";
 import { createConnection } from "typeorm";
 import express, { Request, Response, NextFunction } from "express";
 import fs from "fs";
+import path from "path";
 import dotenv from "dotenv";
 import os from "os";
 import { dbConfig } from "./config/database";
@@ -27,17 +28,21 @@ createConnection(dbConfig)
       next();
     });
 
-    const routesPath = "./src/routes";
+    fs.readdir(path.join(__dirname, "routes"), async (error, items) => {
+      // eslint-disable-next-line no-restricted-syntax
+      for (const file of items) {
+        console.log(`import ${file}`);
+        try {
+          // eslint-disable-next-line no-await-in-loop
+          const route = await import(`./routes/${file}`);
+          route.default(app);
+        } catch (err) {
+          console.error(`error reading file ${file}`, err);
+        }
+      }
 
-    fs.readdirSync(routesPath).forEach(async (filename) => {
-      try {
-        const route = await import(`./routes/${filename}`);
-
-        route.default(app);
-
-        console.log(`Imported ${filename}`);
-      } catch (error) {
-        console.error(`Error importing route ${filename}`, error.message);
+      if (error) {
+        console.error("error reading directories", error);
       }
     });
 
