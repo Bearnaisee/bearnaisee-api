@@ -1,3 +1,4 @@
+import dotenv from "dotenv";
 import { ConnectionOptions } from "typeorm";
 import { Ingredients } from "../entities/Ingredients";
 import { Languages } from "../entities/Languages";
@@ -13,6 +14,8 @@ import { UserFollowsUser } from "../entities/UserFollowsUser";
 import { UserLikesRecipe } from "../entities/UserLikesRecipe";
 import { UserRoles } from "../entities/UserRoles";
 import { Users } from "../entities/Users";
+
+if (process.env.NODE_ENV !== "production") dotenv.config();
 
 export const dbConfig: ConnectionOptions = {
   type: "postgres",
