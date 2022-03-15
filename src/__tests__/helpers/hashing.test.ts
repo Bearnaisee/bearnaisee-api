@@ -6,8 +6,14 @@ const string2 = "https://github.com/hougesen";
 
 describe("hashString", async () => {
   test("able to hash string", async () => {
-    expect(await hashString(string1)).toBeDefined();
-    expect(await hashString(string2)).toBeDefined();
+    const result1 = await hashString(string1);
+    const result2 = await hashString(string2);
+
+    expect(result1).toBeDefined();
+    expect(result1).not.toEqual(string1);
+
+    expect(result2).toBeDefined();
+    expect(result2).not.toEqual(string2);
   });
 
   test("have correct length", async () => {
