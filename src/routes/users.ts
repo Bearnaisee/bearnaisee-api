@@ -3,6 +3,7 @@ import { Application, Request, Response } from "express";
 import { hashString, verifyHash } from "../helpers/hashing";
 import { Users } from "../entities/Users";
 import { UserRoles } from "../entities/UserRoles";
+import { UserFollowsUser } from "../entities/UserFollowsUser";
 
 export default (server: Application) => {
   server.post("/user/create", async (req: Request, res: Response) => {
@@ -101,5 +102,44 @@ export default (server: Application) => {
     }
 
     return res.status(404).send({ msg: "User not found", successful: false });
+  });
+
+  server.get("/user/:username", async (req: Request, res: Response) => {
+    const user = await getRepository(Users)
+      .findOne({
+        username: req?.params?.username?.trim()?.toLowerCase(),
+      })
+      .catch((error) => console.error("Error finding user", req.params.username, error));
+
+    if (user) {
+      return res.status(200).send({
+        ...user,
+        password: undefined,
+        bannedAt: undefined,
+      });
+    }
+
+    return res.status(404).send({ user: null });
+  });
+
+  server.get("/user/stats/:userId", async (req: Request, res: Response) => {
+    const userId = parseInt(req?.params?.userId, 10);
+
+    if (Number.isNaN(userId)) {
+      return res.status(400).send({ msg: "Not a valid userId" });
+    }
+    // TODO: the 2 queries into a single raw
+    const followerCount = await getRepository(UserFollowsUser).count({
+      userId,
+    });
+
+    const followingCount = await getRepository(UserFollowsUser).count({
+      followerId: userId,
+    });
+
+    return res.status(200).send({
+      followerCount: followerCount || 0,
+      followingCount: followingCount || 0,
+    });
   });
 };
