@@ -29,17 +29,16 @@ createConnection(dbConfig)
     });
 
     fs.readdir(path.join(__dirname, "routes"), async (error, items) => {
-      // eslint-disable-next-line no-restricted-syntax
-      for (const file of items) {
+      items.forEach(async (file) => {
         console.log(`import ${file}`);
+
         try {
-          // eslint-disable-next-line no-await-in-loop
           const route = await import(`./routes/${file}`);
           route.default(app);
         } catch (err) {
           console.error(`error reading file ${file}`, err);
         }
-      }
+      });
 
       if (error) {
         console.error("error reading directories", error);
