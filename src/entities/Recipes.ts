@@ -8,19 +8,18 @@ import { Users } from "./Users";
 import { UserLikesRecipe } from "./UserLikesRecipe";
 
 @Index("recipes_pkey", ["id"], { unique: true })
-@Index("recipes_slug_user_id_key", ["slug", "userId"], { unique: true })
 @Entity("recipes", { schema: "public" })
 export class Recipes {
   @PrimaryGeneratedColumn({ type: "integer", name: "id" })
   id: number;
 
-  @Column("integer", { name: "user_id", unique: true })
+  @Column("integer", { name: "user_id" })
   userId: number;
 
   @Column("character varying", { name: "title", length: 100 })
   title: string;
 
-  @Column("character varying", { name: "slug", unique: true, length: 100 })
+  @Column("character varying", { name: "slug", length: 100 })
   slug: string;
 
   @Column("text", { name: "description", nullable: true })
@@ -36,6 +35,7 @@ export class Recipes {
   @Column("boolean", { name: "public", nullable: true, default: () => "true" })
   public: boolean | null;
 
+  /** minutes */
   @Column("integer", { name: "estimated_time", nullable: true })
   estimatedTime: number | null;
 

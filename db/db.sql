@@ -88,6 +88,16 @@ CREATE TABLE recipe_has_tags (
     tag_id INT NOT NULL REFERENCES tags(id),
     UNIQUE(recipe_id, tag_id)
 );
+INSERT INTO metrics(metric)
+VALUES('g');
+INSERT INTO metrics(metric)
+VALUES('kg');
+INSERT INTO metrics(metric)
+VALUES('ml');
+INSERT INTO metrics(metric)
+VALUES('l');
+INSERT INTO metrics(metric)
+VALUES('lbs');
 CREATE TABLE metrics (
     id SERIAL PRIMARY KEY,
     metric VARCHAR(255) NOT NULL,

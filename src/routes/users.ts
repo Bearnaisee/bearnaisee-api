@@ -2,6 +2,7 @@ import { getRepository } from "typeorm";
 import { Application, Request, Response } from "express";
 import { hashString, verifyHash } from "../helpers/hashing";
 import { Users } from "../entities/Users";
+import { UserRoles } from "../entities/UserRoles";
 
 export default (server: Application) => {
   server.post("/user/create", async (req: Request, res: Response) => {
@@ -40,14 +41,14 @@ export default (server: Application) => {
     }
 
     const user = new Users();
+    user.username = req.body.username.toLowerCase().trim();
+    user.email = req.body.email.toLowerCase().trim();
+    user.password = hashedPassword;
+    user.role = await getRepository(UserRoles).findOne({ id: 1 });
 
     await userRepository
       .save({
         ...user,
-        username: req.body.username.toLowerCase().trim(),
-        email: req.body.email.toLowerCase().trim(),
-        password: hashedPassword,
-        role_id: 1,
       })
       .then((result) =>
         res.status(200).send({
@@ -72,8 +73,7 @@ export default (server: Application) => {
 
   server.post("/user/login", async (req: Request, res: Response) => {
     if (!req?.body?.email?.trim()?.length || !req?.body?.password?.length) {
-      res.status(400).send({ msg: "Missing data", successful: false });
-      return;
+      return res.status(400).send({ msg: "Missing data", successful: false });
     }
 
     const userRepository = getRepository(Users);
@@ -86,7 +86,7 @@ export default (server: Application) => {
       const correctPassword = await verifyHash(user.password, req.body.password);
 
       if (correctPassword) {
-        res.status(200).send({
+        return res.status(200).send({
           msg: "Logged in successful",
           user: {
             ...user,
@@ -95,13 +95,11 @@ export default (server: Application) => {
           },
           successful: true,
         });
-        return;
       }
 
-      res.status(400).send({ msg: "Wrong password", successful: false });
-      return;
+      return res.status(400).send({ msg: "Wrong password", successful: false });
     }
 
-    res.status(404).send({ msg: "User not found", successful: false });
+    return res.status(404).send({ msg: "User not found", successful: false });
   });
 };
