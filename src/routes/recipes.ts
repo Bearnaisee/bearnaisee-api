@@ -158,4 +158,25 @@ export default (server: Application) => {
 
     res.status(200).send({ result });
   });
+
+  // NOTE: might need to be change to check by id in the future for better performance
+  // but shouldn't really matter in the beginning because of the low data size
+  server.get("/recipes/:username", async (req: Request, res: Response) => {
+    const recipes: Recipes[] = await getRepository(Recipes).query(
+      `SELECT title,
+          slug,
+          cover_image as "coverImage",
+          $1 as author
+      FROM recipes
+      WHERE user_id = (
+              SELECT id
+              FROM users
+              WHERE username = $1
+          )
+      ORDER BY id DESC;`,
+      [req?.params?.username],
+    );
+
+    res.status(200).send({ recipes });
+  });
 };
