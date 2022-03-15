@@ -102,4 +102,22 @@ export default (server: Application) => {
 
     return res.status(404).send({ msg: "User not found", successful: false });
   });
+
+  server.get("/user/:username", async (req: Request, res: Response) => {
+    const user = await getRepository(Users)
+      .findOne({
+        username: req?.params?.username?.trim()?.toLowerCase(),
+      })
+      .catch((error) => console.error("Error finding user", req.params.username, error));
+
+    if (user) {
+      return res.status(200).send({
+        ...user,
+        password: undefined,
+        bannedAt: undefined,
+      });
+    }
+
+    return res.status(404).send({ user: null });
+  });
 };
