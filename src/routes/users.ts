@@ -4,6 +4,7 @@ import { hashString, verifyHash } from "../helpers/hashing";
 import { Users } from "../entities/Users";
 import { UserRoles } from "../entities/UserRoles";
 import { UserFollowsUser } from "../entities/UserFollowsUser";
+import { Recipes } from "../entities/Recipes";
 
 export default (server: Application) => {
   server.post("/user/create", async (req: Request, res: Response) => {
@@ -189,6 +190,49 @@ export default (server: Application) => {
     return res.status(200).send({
       msg: "Created new follow",
       result,
+    });
+  });
+
+  server.get("/feed/:userId", async (req: Request, res: Response) => {
+    const userId = parseInt(req.params.userId, 10);
+
+    if (Number.isNaN(userId)) {
+      return res.status(400).send({ msg: "Not a valid userId", feed: [] });
+    }
+
+    const skip =
+      req?.query?.skip && !Number.isNaN(req?.query?.skip?.toString()) ? parseInt(req?.query?.skip?.toString(), 10) : 0;
+
+    const take =
+      req?.query?.take && !Number.isNaN(parseInt(req?.query?.take?.toString(), 10))
+        ? parseInt(req?.query?.take?.toString(), 10)
+        : 10;
+
+    const followedUsers = await getRepository(UserFollowsUser)
+      .createQueryBuilder()
+      .select("UserFollowsUser.user_id")
+      .where("UserFollowsUser.followerId = :followerId", {
+        followerId: userId,
+      })
+      .execute()
+      ?.then((users: { user_id: number }[]) => users?.map((u) => ({ userId: u?.user_id })));
+
+    const recipes = await getRepository(Recipes).find({
+      where: followedUsers,
+      relations: ["user"],
+      skip,
+      take,
+    });
+
+    // TODO: figure out how to join and select
+    for (let i = 0; i < recipes.length; i += 1) {
+      recipes[i].user.email = undefined;
+      recipes[i].user.password = undefined;
+    }
+
+    return res.status(200).send({
+      feed: recipes,
+      skip: skip + recipes.length,
     });
   });
 };
