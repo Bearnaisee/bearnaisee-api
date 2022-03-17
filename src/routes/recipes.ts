@@ -125,9 +125,13 @@ export default (server: Application) => {
   });
 
   server.get("/recipes/recent", async (req: Request, res: Response) => {
-    // don't ask
-    const take = req?.query?.take ? parseInt(req?.query?.take.toString(), 10) : 20;
-    const skip = req?.query?.skip ? parseInt(req?.query?.skip.toString(), 10) : 0;
+    const skip =
+      req?.query?.skip && !Number.isNaN(req?.query?.skip?.toString()) ? parseInt(req?.query?.skip?.toString(), 10) : 0;
+
+    const take =
+      req?.query?.take && !Number.isNaN(parseInt(req?.query?.take?.toString(), 10))
+        ? parseInt(req?.query?.take?.toString(), 10)
+        : 10;
 
     const recipes = await getRepository(Recipes)
       .createQueryBuilder("recipe")
