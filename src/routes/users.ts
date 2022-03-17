@@ -142,4 +142,53 @@ export default (server: Application) => {
       followingCount: followingCount || 0,
     });
   });
+
+  server.get("/user/follow/:userId/:followerId", async (req: Request, res: Response) => {
+    const userId = parseInt(req.params.userId, 10);
+    const followerId = parseInt(req.params.followerId, 10);
+
+    if (Number.isNaN(userId) || Number.isNaN(followerId)) {
+      return res.status(400).send({ msg: "Not a valid userId or followerId" });
+    }
+
+    const following = await getRepository(UserFollowsUser).count({
+      userId,
+      followerId,
+    });
+
+    return res.status(200).send({
+      following: !!following,
+    });
+  });
+
+  server.post("/user/follow/:userId/:followerId", async (req: Request, res: Response) => {
+    const userId = parseInt(req.params.userId, 10);
+    const followerId = parseInt(req.params.followerId, 10);
+
+    if (Number.isNaN(userId) || Number.isNaN(followerId)) {
+      return res.status(400).send({ msg: "Not a valid userId or followerId" });
+    }
+    const deleteResult = await getRepository(UserFollowsUser).delete({ userId, followerId });
+
+    if (deleteResult?.affected) {
+      return res.status(200).send({
+        msg: "Deleted existing follow",
+        deleteResult,
+      });
+    }
+
+    const newFollow = new UserFollowsUser();
+
+    newFollow.userId = userId;
+    newFollow.followerId = followerId;
+
+    const result = await getRepository(UserFollowsUser).save({
+      ...newFollow,
+    });
+
+    return res.status(200).send({
+      msg: "Created new follow",
+      result,
+    });
+  });
 };
