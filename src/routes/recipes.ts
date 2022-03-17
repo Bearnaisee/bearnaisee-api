@@ -153,6 +153,44 @@ export default (server: Application) => {
     });
   });
 
+  server.get("/recipes/trending", async (req: Request, res: Response) => {
+    const skip =
+      req?.query?.skip && !Number.isNaN(req?.query?.skip?.toString()) ? parseInt(req?.query?.skip?.toString(), 10) : 0;
+
+    const take =
+      req?.query?.take && !Number.isNaN(parseInt(req?.query?.take?.toString(), 10))
+        ? parseInt(req?.query?.take?.toString(), 10)
+        : 10;
+
+    const mostLikedMonth = await getRepository(UserLikesRecipe)
+      .query(
+        `SELECT recipe_id
+       FROM user_likes_recipe
+       WHERE created_at > (CURRENT_DATE - INTERVAL '30 days')
+       GROUP BY recipe_id
+       ORDER BY COUNT(recipe_id) DESC`,
+      )
+      ?.then((ids: { recipe_id: number }[]) => ids.map((id) => id?.recipe_id)?.splice(skip, take));
+
+    const recipes = await getRepository(Recipes)
+      .createQueryBuilder("recipe")
+      .where("recipe.id IN (:...recipeIds)", { recipeIds: mostLikedMonth })
+      .leftJoinAndSelect("recipe.user", "user")
+      .leftJoinAndSelect("recipe.recipeHasTags", "recipeHasTags")
+      .leftJoinAndSelect("recipeHasTags.tag", "recipeTags")
+      .getMany();
+
+    res.status(200).send({
+      recipes: recipes?.map((r) => ({
+        ...r,
+        author: r?.user?.username,
+        user: undefined,
+        recipeHasTags: undefined,
+        tags: r?.recipeHasTags?.map((rt) => rt?.tag),
+      })),
+    });
+  });
+
   server.delete("/recipe/:recipeId", async (req: Request, res: Response) => {
     const result = await getRepository(Recipes)
       .createQueryBuilder()
