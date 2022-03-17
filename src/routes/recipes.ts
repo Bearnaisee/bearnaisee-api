@@ -182,12 +182,19 @@ export default (server: Application) => {
   });
 
   server.get("/recipe/like/:recipeId/:userId", async (req: Request, res: Response) => {
+    const recipeId = parseInt(req.params.recipeId, 10);
+    const userId = parseInt(req.params.userId, 10);
+
+    if (Number.isNaN(userId) || Number.isNaN(recipeId)) {
+      return res.status(400).send({ msg: "Not a valid userId or recipeId" });
+    }
+
     const liked = await getRepository(UserLikesRecipe).count({
-      recipeId: parseInt(req.params.recipeId, 10),
-      userId: parseInt(req.params.userId, 10),
+      recipeId,
+      userId,
     });
 
-    res.status(200).send({
+    return res.status(200).send({
       userLiked: !!liked,
     });
   });
@@ -195,6 +202,10 @@ export default (server: Application) => {
   server.post("/recipe/like/:recipeId/:userId", async (req: Request, res: Response) => {
     const recipeId = parseInt(req.params.recipeId, 10);
     const userId = parseInt(req.params.userId, 10);
+
+    if (Number.isNaN(userId) || Number.isNaN(recipeId)) {
+      return res.status(400).send({ msg: "Not a valid userId or recipeId" });
+    }
 
     const deleteResult = await getRepository(UserLikesRecipe).delete({ recipeId, userId });
 
