@@ -8,6 +8,7 @@ import createRecipeTags from "../helpers/recipe/createRecipeTags";
 import { generateRandomString } from "../helpers/generateRandomString";
 import createRecipeSteps from "../helpers/recipe/createRecipeSteps";
 import { RecipeHasIngredients } from "../entities/RecipeHasIngredients";
+import { UserLikesRecipe } from "../entities/UserLikesRecipe";
 
 export default (server: Application) => {
   server.post("/recipe", async (req: Request, res: Response) => {
@@ -178,5 +179,44 @@ export default (server: Application) => {
     );
 
     res.status(200).send({ recipes });
+  });
+
+  server.get("/recipe/like/:recipeId/:userId", async (req: Request, res: Response) => {
+    const liked = await getRepository(UserLikesRecipe).count({
+      recipeId: parseInt(req.params.recipeId, 10),
+      userId: parseInt(req.params.userId, 10),
+    });
+
+    res.status(200).send({
+      userLiked: !!liked,
+    });
+  });
+
+  server.post("/recipe/like/:recipeId/:userId", async (req: Request, res: Response) => {
+    const recipeId = parseInt(req.params.recipeId, 10);
+    const userId = parseInt(req.params.userId, 10);
+
+    const deleteResult = await getRepository(UserLikesRecipe).delete({ recipeId, userId });
+
+    if (deleteResult?.affected) {
+      return res.status(200).send({
+        msg: "Deleted existing",
+        deleteResult,
+      });
+    }
+
+    const newLike = new UserLikesRecipe();
+
+    newLike.recipeId = recipeId;
+    newLike.userId = userId;
+
+    const result = await getRepository(UserLikesRecipe).save({
+      ...newLike,
+    });
+
+    return res.status(200).send({
+      msg: "Created new like",
+      result,
+    });
   });
 };
