@@ -23,11 +23,11 @@ export default (server: Application) => {
     if (!user) {
       return res.status(200).send({ msg: "Couldn't find user with that id" });
     }
-
+    const slug = req?.body?.slug || `${slugGenerator(req?.body?.title?.trim())}-${generateRandomString()}`;
     const recipe = new Recipes();
     recipe.userId = user.id;
     recipe.title = req?.body?.title?.trim();
-    recipe.slug = req?.body?.slug || `${slugGenerator(req?.body?.title?.trim())}-${generateRandomString()}`;
+    recipe.slug = slug?.length > 100 ? slug.slice(0, 100) : slug;
     recipe.description = req?.body?.description;
     recipe.coverImage = req?.body?.coverImage;
     recipe.public = req?.body?.public || true;
