@@ -1,5 +1,11 @@
 export function slugGenerator(text: string): string {
-  return encodeURI(text?.trim()?.replaceAll(" ", "-")?.toLowerCase());
+  return encodeURI(
+    text
+      ?.trim()
+      ?.replaceAll(" ", "-")
+      ?.replaceAll(/[^a-z0-9-]/gi, "")
+      ?.toLowerCase(),
+  );
 }
 
 export function unslugText(text: string): string {
