@@ -166,10 +166,10 @@ export default (server: Application) => {
     const mostLikedMonth = await getRepository(UserLikesRecipe)
       .query(
         `SELECT recipe_id
-       FROM user_likes_recipe
-       WHERE created_at > (CURRENT_DATE - INTERVAL '30 days')
-       GROUP BY recipe_id
-       ORDER BY COUNT(recipe_id) DESC`,
+         FROM user_likes_recipe
+         WHERE created_at > (CURRENT_DATE - INTERVAL '30 days')
+         GROUP BY recipe_id
+         ORDER BY COUNT(recipe_id) DESC`,
       )
       ?.then((ids: { recipe_id: number }[]) => ids?.map((id) => id?.recipe_id)?.splice(skip, take));
 
@@ -234,7 +234,7 @@ export default (server: Application) => {
     });
   });
 
-  server.get("/recipes/:category/trending", async (req: Request, res: Response) => {
+  server.get("/recipes/:tag/trending", async (req: Request, res: Response) => {
     const skip =
       req?.query?.skip && !Number.isNaN(req?.query?.skip?.toString()) ? parseInt(req?.query?.skip?.toString(), 10) : 0;
 
@@ -243,13 +243,24 @@ export default (server: Application) => {
         ? parseInt(req?.query?.take?.toString(), 10)
         : 10;
 
+    const tag = await getRepository(Tags).findOne({ tag: req.params.tag.toLowerCase() });
+
+    if (!tag) {
+      res.status(404).send({ msg: "Tag not found" });
+      return;
+    }
+
     const mostLikedMonth = await getRepository(UserLikesRecipe)
       .query(
-        `SELECT recipe_id
-       FROM user_likes_recipe
-       WHERE created_at > (CURRENT_DATE - INTERVAL '30 days')
-       GROUP BY recipe_id
-       ORDER BY COUNT(recipe_id) DESC`,
+        `SELECT user_likes_recipe.recipe_id
+         FROM user_likes_recipe
+         LEFT JOIN recipe_has_tags
+         ON recipe_has_tags.recipe_id = user_likes_recipe.recipe_id
+         WHERE user_likes_recipe.created_at > (CURRENT_DATE - INTERVAL '30 days') 
+          AND recipe_has_tags.tag_id = $1
+         GROUP BY user_likes_recipe.recipe_id
+         ORDER BY COUNT(user_likes_recipe.recipe_id) DESC`,
+        [tag.id],
       )
       ?.then((ids: { recipe_id: number }[]) => ids?.map((id) => id?.recipe_id)?.splice(skip, take));
 
