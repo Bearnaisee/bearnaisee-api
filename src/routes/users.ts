@@ -1,5 +1,6 @@
 import { getRepository } from "typeorm";
 import { Application, Request, Response } from "express";
+import md5 from "md5";
 import { hashString, verifyHash } from "../helpers/hashing";
 import { Users } from "../entities/Users";
 import { UserRoles } from "../entities/UserRoles";
@@ -272,6 +273,19 @@ export default (server: Application) => {
         userIds: usersWithMostRecipes?.map((u) => u?.user_id),
       })
       .getMany();
+
+    for (let i = 0; i < users.length; i += 1) {
+      if (!users[i].avatarUrl) {
+        if (users[i].email) {
+          const emailHash = md5(users[i].email.trim().toLowerCase());
+
+          users[i].avatarUrl = `https://gravatar.com/avatar/${emailHash}?s=192`;
+        } else {
+          users[i].avatarUrl = "http://www.gravatar.com/avatar/?d=mp&s=192";
+        }
+        users[i].email = undefined;
+      }
+    }
 
     res.status(200).send({
       users,
