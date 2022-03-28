@@ -137,13 +137,13 @@ export default (server: Application) => {
     const take =
       req?.query?.take && !Number.isNaN(parseInt(req?.query?.take?.toString(), 10))
         ? parseInt(req?.query?.take?.toString(), 10)
-        : 10;
+        : 20;
 
     const recipes = await getRepository(Recipes)
       .createQueryBuilder("recipe")
       .orderBy("recipe.createdAt", "DESC")
       .skip(skip)
-      .limit(take)
+      .take(take)
       .leftJoinAndSelect("recipe.user", "user")
       .leftJoinAndSelect("recipe.recipeHasTags", "recipeHasTags")
       .leftJoinAndSelect("recipeHasTags.tag", "recipeTags")
@@ -209,7 +209,7 @@ export default (server: Application) => {
     const take =
       req?.query?.take && !Number.isNaN(parseInt(req?.query?.take?.toString(), 10))
         ? parseInt(req?.query?.take?.toString(), 10)
-        : 10;
+        : 20;
 
     const tag = await getRepository(Tags).findOne({ tag: req.params.tag.toLowerCase() });
 
@@ -222,7 +222,7 @@ export default (server: Application) => {
       .createQueryBuilder("recipe")
       .orderBy("recipe.createdAt", "DESC")
       .skip(skip)
-      .limit(take)
+      .take(take)
       .leftJoinAndSelect("recipe.user", "user")
       .leftJoinAndSelect("recipe.recipeHasTags", "recipeHasTags")
       .leftJoinAndSelect("recipeHasTags.tag", "recipeTags")
