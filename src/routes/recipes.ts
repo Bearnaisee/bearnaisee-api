@@ -262,6 +262,14 @@ export default (server: Application) => {
       });
     }
 
+    const recipe = await getRepository(Recipes).findOne({
+      id: recipeId,
+    });
+
+    if (recipe.userId === userId) {
+      return res.status(400).send({ msg: "Cannot like own recipe" });
+    }
+
     const newLike = new UserLikesRecipe();
 
     newLike.recipeId = recipeId;
