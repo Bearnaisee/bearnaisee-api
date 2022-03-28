@@ -26,8 +26,8 @@ export default (server: Application) => {
 
     const recipe = new Recipes();
     recipe.userId = user.id;
-    recipe.title = `${req?.body?.title?.trim()}${generateRandomString()}`;
-    recipe.slug = `${req?.body?.slug || slugGenerator(req?.body?.title)}-${generateRandomString()}`;
+    recipe.title = req?.body?.title?.trim();
+    recipe.slug = req?.body?.slug || `${slugGenerator(req?.body?.title?.trim())}-${generateRandomString()}`;
     recipe.description = req?.body?.description;
     recipe.coverImage = req?.body?.coverImage;
     recipe.public = req?.body?.public || true;
@@ -74,7 +74,13 @@ export default (server: Application) => {
       }
     }
 
-    return res.status(200).send({ msg: "No errors", recipe: savedRecipe });
+    return res.status(200).send({
+      msg: "No errors",
+      recipe: {
+        ...savedRecipe,
+        slug: savedRecipe?.slug || recipe.slug,
+      },
+    });
   });
 
   server.get("/recipe/:username/:slug", async (req: Request, res: Response) => {
