@@ -136,11 +136,12 @@ export default (server: Application) => {
 
     const recipes = await getRepository(Recipes)
       .createQueryBuilder("recipe")
+      .orderBy("recipe.createdAt", "DESC")
+      .skip(skip)
+      .limit(take)
       .leftJoinAndSelect("recipe.user", "user")
       .leftJoinAndSelect("recipe.recipeHasTags", "recipeHasTags")
       .leftJoinAndSelect("recipeHasTags.tag", "recipeTags")
-      .skip(skip)
-      .limit(take)
       .getMany();
 
     res.status(200).send({
@@ -214,12 +215,13 @@ export default (server: Application) => {
 
     const recipes = await getRepository(Recipes)
       .createQueryBuilder("recipe")
+      .orderBy("recipe.createdAt", "DESC")
+      .skip(skip)
+      .limit(take)
       .leftJoinAndSelect("recipe.user", "user")
       .leftJoinAndSelect("recipe.recipeHasTags", "recipeHasTags")
       .leftJoinAndSelect("recipeHasTags.tag", "recipeTags")
       .where("recipeHasTags.tagId = :tagId", { tagId: tag.id })
-      .skip(skip)
-      .limit(take)
       .getMany();
 
     res.status(200).send({
