@@ -170,25 +170,29 @@ export default (server: Application) => {
        GROUP BY recipe_id
        ORDER BY COUNT(recipe_id) DESC`,
       )
-      ?.then((ids: { recipe_id: number }[]) => ids.map((id) => id?.recipe_id)?.splice(skip, take));
+      ?.then((ids: { recipe_id: number }[]) => ids?.map((id) => id?.recipe_id)?.splice(skip, take));
 
-    const recipes = await getRepository(Recipes)
-      .createQueryBuilder("recipe")
-      .where("recipe.id IN (:...recipeIds)", { recipeIds: mostLikedMonth })
-      .leftJoinAndSelect("recipe.user", "user")
-      .leftJoinAndSelect("recipe.recipeHasTags", "recipeHasTags")
-      .leftJoinAndSelect("recipeHasTags.tag", "recipeTags")
-      .getMany();
+    if (mostLikedMonth.length) {
+      const recipes = await getRepository(Recipes)
+        .createQueryBuilder("recipe")
+        .where("recipe.id IN (:...recipeIds)", { recipeIds: mostLikedMonth })
+        .leftJoinAndSelect("recipe.user", "user")
+        .leftJoinAndSelect("recipe.recipeHasTags", "recipeHasTags")
+        .leftJoinAndSelect("recipeHasTags.tag", "recipeTags")
+        .getMany();
 
-    res.status(200).send({
-      recipes: recipes?.map((r) => ({
-        ...r,
-        author: r?.user?.username,
-        user: undefined,
-        recipeHasTags: undefined,
-        tags: r?.recipeHasTags?.map((rt) => rt?.tag),
-      })),
-    });
+      res.status(200).send({
+        recipes: recipes?.map((r) => ({
+          ...r,
+          author: r?.user?.username,
+          user: undefined,
+          recipeHasTags: undefined,
+          tags: r?.recipeHasTags?.map((rt) => rt?.tag),
+        })),
+      });
+    } else {
+      res.status(200).send({ msg: "No trending recipes", recipes: [] });
+    }
   });
 
   server.delete("/recipe/:recipeId", async (req: Request, res: Response) => {
