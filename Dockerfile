@@ -8,10 +8,6 @@ RUN npm run build
 
 FROM node:16-alpine
 ENV NODE_ENV=production
-ENV POSTGRES_HOST=
-ENV POSTGRES_USER=
-ENV POSTGRES_PASSWORD=
-ENV POSTGRES_DB=
 
 WORKDIR /app
 COPY --from=build /app/package.json package.json
