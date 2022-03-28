@@ -10,6 +10,9 @@ import createRecipeSteps from "../helpers/recipe/createRecipeSteps";
 import { RecipeHasIngredients } from "../entities/RecipeHasIngredients";
 import { UserLikesRecipe } from "../entities/UserLikesRecipe";
 import { Tags } from "../entities/Tags";
+import createRecipeIngredients from "../helpers/recipe/createRecipeIngredients";
+import { Metrics } from "../entities/Metrics";
+import { Ingredients } from "../entities/Ingredients";
 
 export default (server: Application) => {
   server.post("/recipe", async (req: Request, res: Response) => {
@@ -37,7 +40,6 @@ export default (server: Application) => {
         ...recipe,
       })
       .catch((error) => console.error("Error saving recipe", error));
-    console.log("recipe,", savedRecipe);
 
     if (!savedRecipe) {
       return res.status(400).send({
@@ -59,19 +61,16 @@ export default (server: Application) => {
     }
 
     if (req?.body?.ingredients?.length) {
-      const validIngredients = req?.body?.ingredients?.filter((i) => i?.metricId && i?.ingredientId && i?.amount);
+      const validIngredients = req?.body?.ingredients?.filter(
+        (i: {
+          metricId: Metrics["id"];
+          amount: RecipeHasIngredients["amount"];
+          ingredient: Ingredients["ingredient"];
+        }) => i?.metricId && i?.amount && i?.ingredient?.trim()?.length,
+      );
 
       if (validIngredients?.length) {
-        validIngredients.forEach(async (ingredient) => {
-          const newIngredient = getRepository(RecipeHasIngredients).create({
-            recipeId: savedRecipe.id,
-            amount: ingredient.amount,
-            metricId: ingredient.metricId,
-            ingredientId: ingredient.ingredientId,
-          });
-
-          await getRepository(RecipeHasIngredients).save(newIngredient);
-        });
+        await createRecipeIngredients(savedRecipe, validIngredients);
       }
     }
 
