@@ -235,4 +235,46 @@ export default (server: Application) => {
       skip: skip + recipes.length,
     });
   });
+
+  server.get("/user/who-to-follow/:userId", async (req: Request, res: Response) => {
+    const userId = parseInt(req.params.userId, 10);
+
+    if (Number.isNaN(userId)) {
+      res.status(400).send({ msg: "Not a valid userId", users: [] });
+      return;
+    }
+
+    const usersWithMostRecipes: { user_id: number }[] = await getRepository(Recipes).query(
+      `
+        SELECT user_id
+        FROM recipes
+        WHERE user_id != $1 AND user_id NOT IN (SELECT user_id FROM user_follows_user WHERE follower_id = $1)
+        GROUP BY user_id
+        ORDER BY COUNT(user_id) DESC
+        LIMIT 4
+      `,
+      [userId],
+    );
+
+    if (!usersWithMostRecipes?.length) {
+      res.status(200).send({ msg: "User is already following everybody" });
+      return;
+    }
+
+    const users = await getRepository(Users)
+      .createQueryBuilder("user")
+      .select("user.id")
+      .addSelect("user.username")
+      .addSelect("user.displayName")
+      .addSelect("user.email")
+      .addSelect("user.avatarUrl")
+      .where("user.id in (:...userIds)", {
+        userIds: usersWithMostRecipes?.map((u) => u?.user_id),
+      })
+      .getMany();
+
+    res.status(200).send({
+      users,
+    });
+  });
 };
