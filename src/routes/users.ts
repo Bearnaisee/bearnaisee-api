@@ -293,6 +293,9 @@ export default (server: Application) => {
   });
 
   server.get("/user/liked/recipes/:userId", async (req: Request, res: Response) => {
+    const skip =
+      req?.query?.skip && !Number.isNaN(req?.query?.skip?.toString()) ? parseInt(req?.query?.skip?.toString(), 10) : 0;
+
     const recipes: {
       title: string;
       slug: string;
@@ -300,17 +303,19 @@ export default (server: Application) => {
       coverImage: string;
     }[] = await getManager().query(
       `SELECT 
-        r.title, 
-        r.slug, 
-        r.cover_image AS "coverImage", 
-        u.username 
-      FROM 
-        recipes r 
-        INNER JOIN user_likes_recipe ulr ON ulr.recipe_id = r.id 
-        INNER JOIN users u ON u.id = r.user_id 
-      WHERE 
-        ulr.user_id = $1`,
-      [parseInt(req.params.userId, 10)],
+          r.title, 
+          r.slug, 
+          r.cover_image AS "coverImage", 
+          u.username 
+        FROM 
+          recipes r 
+          INNER JOIN user_likes_recipe ulr ON ulr.recipe_id = r.id 
+          INNER JOIN users u ON u.id = r.user_id 
+        WHERE ulr.user_id = $1
+        ORDER BY r.id DESC 
+        OFFSET $2
+        LIMIT 20`,
+      [parseInt(req.params.userId, 10), skip],
     );
 
     res.status(200).send({
