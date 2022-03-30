@@ -306,7 +306,7 @@ export default (server: Application) => {
           r.title, 
           r.slug, 
           r.cover_image AS "coverImage", 
-          u.username 
+          u.username AS author
         FROM 
           recipes r 
           INNER JOIN user_likes_recipe ulr ON ulr.recipe_id = r.id 
