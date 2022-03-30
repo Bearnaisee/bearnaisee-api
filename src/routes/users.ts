@@ -1,4 +1,4 @@
-import { getRepository } from "typeorm";
+import { getManager, getRepository } from "typeorm";
 import { Application, Request, Response } from "express";
 import md5 from "md5";
 import { hashString, verifyHash } from "../helpers/hashing";
@@ -289,6 +289,32 @@ export default (server: Application) => {
 
     res.status(200).send({
       users,
+    });
+  });
+
+  server.get("/user/liked/recipes/:userId", async (req: Request, res: Response) => {
+    const recipes: {
+      title: string;
+      slug: string;
+      username: string;
+      coverImage: string;
+    }[] = await getManager().query(
+      `SELECT 
+        r.title, 
+        r.slug, 
+        r.cover_image AS "coverImage", 
+        u.username 
+      FROM 
+        recipes r 
+        INNER JOIN user_likes_recipe ulr ON ulr.recipe_id = r.id 
+        INNER JOIN users u ON u.id = r.user_id 
+      WHERE 
+        ulr.user_id = $1`,
+      [parseInt(req.params.userId, 10)],
+    );
+
+    res.status(200).send({
+      recipes,
     });
   });
 };
