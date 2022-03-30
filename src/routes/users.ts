@@ -322,4 +322,37 @@ export default (server: Application) => {
       recipes,
     });
   });
+
+  server.post("/user/settings", async (req: Request, res: Response) => {
+    if (!req?.body?.userId) {
+      res.status(400).send({ msg: "Missing userId" });
+      return;
+    }
+    const user = await getRepository(Users).findOne({ id: req.body.userId });
+
+    if (!user?.id) {
+      res.status(404).send({ msg: "User not found" });
+      return;
+    }
+
+    const displayName = req?.body?.displayName?.trim() || user?.username;
+    const description = req?.body?.description?.trim();
+    const location = req?.body?.location?.trim();
+    const website = req?.body?.website?.trim();
+
+    user.displayName = displayName?.slice(0, displayName?.length > 50 ? 50 : displayName?.length);
+    user.description = description?.slice(0, description?.length > 255 ? 255 : description?.length);
+    user.location = location?.slice(0, location?.length > 40 ? 40 : location?.length);
+    user.website = website?.slice(0, website?.length > 40 ? 40 : website?.length);
+
+    await getRepository(Users)
+      .save({
+        ...user,
+      })
+      .then(() => res.status(200).send({ msg: "Updated settings" }))
+      .catch((error) => {
+        console.error("Error updating settings", error);
+        res.status(500).send({ msg: "Error updating settings" });
+      });
+  });
 };
