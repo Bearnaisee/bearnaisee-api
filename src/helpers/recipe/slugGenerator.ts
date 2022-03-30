@@ -3,8 +3,8 @@ export function slugGenerator(text: string): string {
     text
       ?.trim()
       ?.replaceAll(" ", "-")
-      ?.replaceAll(/[^a-z0-9-]/gi, "")
-      ?.toLowerCase(),
+      ?.toLowerCase()
+      ?.replaceAll(/[^a-z0-9-]/gi, ""),
   );
 }
 
