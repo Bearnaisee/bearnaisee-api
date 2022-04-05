@@ -209,27 +209,41 @@ export default (server: Application) => {
         ? parseInt(req?.query?.take?.toString(), 10)
         : 10;
 
-    const followedUsers = await getRepository(UserFollowsUser)
-      .createQueryBuilder()
-      .select("UserFollowsUser.user_id")
-      .where("UserFollowsUser.followerId = :followerId", {
-        followerId: userId,
-      })
-      .execute()
-      ?.then((users: { user_id: number }[]) => users?.map((u) => ({ userId: u?.user_id })));
-
-    const recipes = await getRepository(Recipes).find({
-      where: followedUsers,
-      relations: ["user"],
-      skip,
-      take,
-    });
-
-    // TODO: figure out how to join and select
-    for (let i = 0; i < recipes.length; i += 1) {
-      recipes[i].user.email = undefined;
-      recipes[i].user.password = undefined;
-    }
+    const recipes: {
+      id: number;
+      slug: string;
+      coverImage: string;
+      title: string;
+      userId: number;
+      username: string;
+      displayName: string;
+      createdAt: string | Date;
+    }[] = await getManager().query(
+      `SELECT 
+        r.id, 
+        r.slug, 
+        r.cover_image AS "coverImage", 
+        r.title, 
+        r.user_id AS "userId", 
+        u.username as "author", 
+        u.display_name as "displayName", 
+        r.created_at AS "createdAt" 
+      FROM 
+        recipes r 
+        INNER JOIN users u ON u.id = r.user_id 
+      WHERE 
+        r.user_id IN (
+          SELECT 
+            user_id 
+          FROM 
+            user_follows_user 
+          WHERE 
+            follower_id = $1
+        ) 
+      OFFSET $2 
+      LIMIT $3;`,
+      [userId, skip, take],
+    );
 
     return res.status(200).send({
       feed: recipes,
