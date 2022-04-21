@@ -1,11 +1,11 @@
 import { getManager, getRepository } from "typeorm";
 import { Application, Request, Response } from "express";
-import md5 from "md5";
 import { hashString, verifyHash } from "../helpers/hashing";
 import { Users } from "../entities/Users";
 import { UserRoles } from "../entities/UserRoles";
 import { UserFollowsUser } from "../entities/UserFollowsUser";
 import { Recipes } from "../entities/Recipes";
+import generateGravatarUrl from "../helpers/generateGravatarUrl";
 
 export default (server: Application) => {
   server.post("/user/create", async (req: Request, res: Response) => {
@@ -290,13 +290,8 @@ export default (server: Application) => {
 
     for (let i = 0; i < users.length; i += 1) {
       if (!users[i].avatarUrl) {
-        if (users[i].email) {
-          const emailHash = md5(users[i].email.trim().toLowerCase());
+        users[i].avatarUrl = generateGravatarUrl(users[i].email);
 
-          users[i].avatarUrl = `https://gravatar.com/avatar/${emailHash}?s=192`;
-        } else {
-          users[i].avatarUrl = "http://www.gravatar.com/avatar/?d=mp&s=192";
-        }
         users[i].email = undefined;
       }
     }
