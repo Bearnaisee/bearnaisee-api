@@ -154,7 +154,7 @@ export default (server: Application) => {
       recipes: recipes?.map((r) => ({
         ...r,
         author: r?.user?.username,
-        avatarUrl: r?.user?.avatarUrl ?? generateGravatarUrl(r?.user?.email) ?? null,
+        avatarUrl: r?.user?.avatarUrl ?? generateGravatarUrl(r?.user?.email),
         user: undefined,
         recipeHasTags: undefined,
         tags: r?.recipeHasTags?.map((rt) => rt?.tag),
@@ -194,6 +194,7 @@ export default (server: Application) => {
         recipes: recipes?.map((r) => ({
           ...r,
           author: r?.user?.username,
+          avatarUrl: r?.user?.avatarUrl ?? generateGravatarUrl(r?.user?.email),
           user: undefined,
           recipeHasTags: undefined,
           tags: r?.recipeHasTags?.map((rt) => rt?.tag),
