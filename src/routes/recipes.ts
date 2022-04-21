@@ -13,6 +13,7 @@ import { Tags } from "../entities/Tags";
 import createRecipeIngredients from "../helpers/recipe/createRecipeIngredients";
 import { Metrics } from "../entities/Metrics";
 import { Ingredients } from "../entities/Ingredients";
+import generateGravatarUrl from "../helpers/generateGravatarUrl";
 
 export default (server: Application) => {
   server.post("/recipe", async (req: Request, res: Response) => {
@@ -153,6 +154,7 @@ export default (server: Application) => {
       recipes: recipes?.map((r) => ({
         ...r,
         author: r?.user?.username,
+        avatarUrl: r?.user?.avatarUrl ?? generateGravatarUrl(r?.user?.email) ?? null,
         user: undefined,
         recipeHasTags: undefined,
         tags: r?.recipeHasTags?.map((rt) => rt?.tag),
