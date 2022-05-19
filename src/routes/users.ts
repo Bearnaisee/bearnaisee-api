@@ -219,6 +219,7 @@ export default (server: Application) => {
       displayName: string;
       userEmail: string;
       createdAt: string | Date;
+      avatarUrl?: string;
     }[] = await getManager().query(
       `SELECT 
         r.id, 
@@ -247,12 +248,13 @@ export default (server: Application) => {
       [userId, skip, take],
     );
 
+    for (let i = 0; i < recipes.length; i += 1) {
+      recipes[i].avatarUrl = generateGravatarUrl(recipes[i]?.userEmail);
+      recipes[i].userEmail = undefined;
+    }
+
     return res.status(200).send({
-      feed: recipes?.map((r) => ({
-        ...r,
-        avatarUrl: generateGravatarUrl(r?.userEmail),
-        userEmail: undefined,
-      })),
+      feed: recipes,
       skip: skip + recipes.length,
     });
   });
