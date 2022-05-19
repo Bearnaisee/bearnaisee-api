@@ -318,12 +318,15 @@ export default (server: Application) => {
       slug: string;
       username: string;
       coverImage: string;
+      email: string;
+      avatarUrl?: string;
     }[] = await getManager().query(
       `SELECT 
           r.title, 
           r.slug, 
           r.cover_image AS "coverImage", 
-          u.username AS author
+          u.username AS author,
+          u.username as email
         FROM 
           recipes r 
           INNER JOIN user_likes_recipe ulr ON ulr.recipe_id = r.id 
@@ -334,6 +337,11 @@ export default (server: Application) => {
         LIMIT 20`,
       [parseInt(req.params.userId, 10), skip],
     );
+
+    for (let i = 0; i < recipes?.length; i += 1) {
+      recipes[i].avatarUrl = generateGravatarUrl(recipes[i].email);
+      recipes[i].email = undefined;
+    }
 
     res.status(200).send({
       recipes,
