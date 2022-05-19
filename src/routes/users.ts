@@ -217,6 +217,7 @@ export default (server: Application) => {
       userId: number;
       username: string;
       displayName: string;
+      userEmail: string;
       createdAt: string | Date;
     }[] = await getManager().query(
       `SELECT 
@@ -227,7 +228,8 @@ export default (server: Application) => {
         r.user_id AS "userId", 
         u.username as "author", 
         u.display_name as "displayName", 
-        r.created_at AS "createdAt" 
+        r.created_at AS "createdAt",
+        u.email AS "userEmail"
       FROM 
         recipes r 
         INNER JOIN users u ON u.id = r.user_id 
@@ -246,7 +248,11 @@ export default (server: Application) => {
     );
 
     return res.status(200).send({
-      feed: recipes,
+      feed: recipes?.map((r) => ({
+        ...r,
+        avatarUrl: generateGravatarUrl(r?.userEmail),
+        userEmail: undefined,
+      })),
       skip: skip + recipes.length,
     });
   });
