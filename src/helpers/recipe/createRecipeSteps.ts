@@ -3,7 +3,7 @@ import { Recipes } from "../../entities/Recipes";
 import { RecipeSteps } from "../../entities/RecipeSteps";
 
 export async function deleteExistingRecipeSteps(recipeId: Recipes["id"]) {
-  const deleteResult = await getConnection()
+  await getConnection()
     .createQueryBuilder()
     .delete()
     .from(RecipeSteps)
@@ -11,8 +11,6 @@ export async function deleteExistingRecipeSteps(recipeId: Recipes["id"]) {
       recipeId,
     })
     .execute();
-
-  console.log({ deleteResult });
 }
 
 export default async function createRecipeSteps(
