@@ -14,6 +14,9 @@ import createRecipeIngredients from "../helpers/recipe/createRecipeIngredients";
 import { Metrics } from "../entities/Metrics";
 import { Ingredients } from "../entities/Ingredients";
 import generateGravatarUrl from "../helpers/generateGravatarUrl";
+import { RecipeSteps } from "../entities/RecipeSteps";
+import { RecipeHasTags } from "../entities/RecipeHasTags";
+import { RecipeComments } from "../entities/RecipeComments";
 
 export default (server: Application) => {
   server.post("/recipe", async (req: Request, res: Response) => {
@@ -400,12 +403,56 @@ export default (server: Application) => {
   });
 
   server.delete("/recipes/:recipeId", async (req: Request, res: Response) => {
+    await getRepository(RecipeSteps)
+      .createQueryBuilder()
+      .delete()
+      .where("recipe_id = :recipeId")
+      .setParameters({ recipeId: parseInt(req?.params?.recipeId, 10) })
+      .execute()
+      .catch((error) => console.error("Error deleting RecipeSteps", error));
+
+    await getRepository(RecipeHasTags)
+      .createQueryBuilder()
+      .delete()
+      .where("recipe_id = :recipeId")
+      .setParameters({ recipeId: parseInt(req?.params?.recipeId, 10) })
+      .execute()
+      .catch((error) => console.error("Error deleting RecipeHasTags", error));
+
+    await getRepository(UserLikesRecipe)
+      .createQueryBuilder()
+      .delete()
+      .where("recipe_id = :recipeId")
+      .setParameters({ recipeId: parseInt(req?.params?.recipeId, 10) })
+      .execute()
+      .catch((error) => console.error("Error deleting RecipeHasTags", error));
+
+    await getRepository(RecipeComments)
+      .createQueryBuilder()
+      .delete()
+      .where("recipe_id = :recipeId")
+      .setParameters({ recipeId: parseInt(req?.params?.recipeId, 10) })
+      .execute()
+      .catch((error) => console.error("Error deleting RecipeHasTags", error));
+
+    await getRepository(RecipeHasIngredients)
+      .createQueryBuilder()
+      .delete()
+      .where("recipe_id = :recipeId")
+      .setParameters({ recipeId: parseInt(req?.params?.recipeId, 10) })
+      .execute()
+      .catch((error) => console.error("Error deleting RecipeHasIngredients", error));
+
     const result = await getRepository(Recipes)
       .createQueryBuilder()
       .delete()
       .where("id = :recipeId")
       .setParameters({ recipeId: parseInt(req?.params?.recipeId, 10) })
-      .execute();
+      .execute()
+      .catch((error) => {
+        console.error("Error deleting tags", error);
+        return error;
+      });
 
     res.status(200).send({ result });
   });
