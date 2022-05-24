@@ -306,6 +306,7 @@ export default (server: Application) => {
         recipes?.map((r) => ({
           ...r,
           author: r?.user?.username,
+          avatarUrl: r?.user?.avatarUrl,
           user: undefined,
           recipeHasTags: undefined,
           tags: r?.recipeHasTags?.map((rt) => rt?.tag),
@@ -356,6 +357,7 @@ export default (server: Application) => {
         recipes: recipes?.map((r) => ({
           ...r,
           author: r?.user?.username,
+          avatarUrl: r?.user?.avatarUrl,
           user: undefined,
           recipeHasTags: undefined,
           tags: r?.recipeHasTags?.map((rt) => rt?.tag),
