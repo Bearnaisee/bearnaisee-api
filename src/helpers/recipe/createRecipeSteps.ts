@@ -3,14 +3,16 @@ import { Recipes } from "../../entities/Recipes";
 import { RecipeSteps } from "../../entities/RecipeSteps";
 
 export async function deleteExistingRecipeSteps(recipeId: Recipes["id"]) {
-  await getConnection()
+  const deleteResult = await getConnection()
     .createQueryBuilder()
     .delete()
     .from(RecipeSteps)
-    .where("id = :recipeId", {
+    .where("recipe_id = :recipeId", {
       recipeId,
     })
     .execute();
+
+  console.log({ deleteResult });
 }
 
 export default async function createRecipeSteps(

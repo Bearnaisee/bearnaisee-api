@@ -31,7 +31,7 @@ export default (server: Application) => {
     recipe.slug = slug?.length > 100 ? slug.slice(0, 100) : slug;
     recipe.description = req?.body?.description;
     recipe.coverImage = req?.body?.coverImage;
-    recipe.public = req?.body?.public || true;
+    recipe.public = req?.body?.public ?? true;
     recipe.estimatedTime = req?.body?.estimatedTime || null;
     recipe.createdAt = req?.body?.createdAt || new Date();
     recipe.editedAt = new Date();
@@ -82,6 +82,72 @@ export default (server: Application) => {
         slug: savedRecipe?.slug || recipe.slug,
       },
     });
+  });
+
+  server.put("/recipe", async (req: Request, res: Response) => {
+    const recipe = await getRepository(Recipes).findOne({ id: req?.body?.id });
+
+    if (recipe.title !== req?.body?.title?.trim()) {
+      recipe.title = req?.body?.title?.trim();
+
+      const slug = req?.body?.slug || `${slugGenerator(req?.body?.title?.trim())}-${generateRandomString()}`;
+
+      recipe.slug = slug?.length > 100 ? slug.slice(0, 100) : slug;
+    }
+
+    recipe.description = req?.body?.description;
+    recipe.coverImage = req?.body?.coverImage;
+    recipe.public = req?.body?.public ?? true;
+    recipe.estimatedTime = req?.body?.estimatedTime || null;
+    recipe.editedAt = new Date();
+
+    const savedRecipe = await getRepository(Recipes)
+      .save({
+        ...recipe,
+      })
+      .catch((error) => {
+        console.error("Error updating recipe", error);
+        res.status(500).send({ msg: "Error updating recipe" });
+        return null;
+      });
+
+    if (savedRecipe) {
+      if (req?.body?.steps?.length) {
+        await createRecipeSteps(savedRecipe, req?.body?.steps);
+      }
+
+      // create any missing tags
+      const recipeTags = req?.body?.tags?.length ? await upsertTags(req?.body?.tags) : [];
+
+      // create the join tables
+      if (recipeTags?.length) {
+        await createRecipeTags(savedRecipe, recipeTags);
+      }
+
+      if (req?.body?.ingredients?.length) {
+        const validIngredients = req?.body?.ingredients?.filter(
+          (i: {
+            metricId: Metrics["id"];
+            amount: RecipeHasIngredients["amount"];
+            ingredient: Ingredients["ingredient"];
+          }) => i?.metricId && i?.amount && i?.ingredient?.trim()?.length,
+        );
+
+        if (validIngredients?.length) {
+          await createRecipeIngredients(savedRecipe, validIngredients);
+        }
+      }
+
+      res.status(200).send({
+        msg: "No errors",
+        recipe: {
+          ...savedRecipe,
+          slug: savedRecipe?.slug || recipe.slug,
+        },
+      });
+    } else {
+      res.status(500).send({ msg: "An unknown error happened" });
+    }
   });
 
   server.get("/recipe/:username/:slug", async (req: Request, res: Response) => {
@@ -297,7 +363,43 @@ export default (server: Application) => {
     }
   });
 
-  server.delete("/recipe/:recipeId", async (req: Request, res: Response) => {
+  server.get("/recipes/:recipeId", async (req: Request, res: Response) => {
+    const recipe = await getRepository(Recipes)
+      .createQueryBuilder("recipe")
+      .where("recipe.id = :recipeId", {
+        recipeId: parseInt(req.params.recipeId, 10),
+      })
+      .leftJoinAndSelect("recipe.recipeSteps", "recipeSteps")
+      .leftJoinAndSelect("recipe.recipeHasIngredients", "recipeHasIngredients")
+      .leftJoinAndSelect("recipeHasIngredients.ingredient", "ingredients")
+      .leftJoinAndSelect("recipeHasIngredients.metric", "metric")
+      .leftJoinAndSelect("recipe.recipeComments", "recipeComments")
+      .leftJoinAndSelect("recipe.recipeHasTags", "recipeHasTags")
+      .leftJoinAndSelect("recipeHasTags.tag", "recipeTags")
+      .getOne();
+
+    if (recipe) {
+      res.status(200).send({
+        ...recipe,
+        recipeHasTags: undefined,
+        recipeHasIngredients: undefined,
+        tags: recipe?.recipeHasTags?.map((recipeTag) => recipeTag?.tag?.tag) ?? [],
+        ingredients:
+          recipe?.recipeHasIngredients?.map((recipeIngredient) => ({
+            ...recipeIngredient,
+            ingredient: recipeIngredient?.ingredient?.ingredient,
+            metric: recipeIngredient?.metric?.metric,
+          })) ?? [],
+        steps: recipe?.recipeSteps ?? [],
+      });
+    } else {
+      res.status(404).send({
+        msg: "Recipe not found",
+      });
+    }
+  });
+
+  server.delete("/recipes/:recipeId", async (req: Request, res: Response) => {
     const result = await getRepository(Recipes)
       .createQueryBuilder()
       .delete()
@@ -310,7 +412,7 @@ export default (server: Application) => {
 
   // NOTE: might need to be change to check by id in the future for better performance
   // but shouldn't really matter in the beginning because of the low data size
-  server.get("/recipes/:username", async (req: Request, res: Response) => {
+  server.get("/recipes/user/:username", async (req: Request, res: Response) => {
     const recipes: Recipes[] = await getRepository(Recipes).query(
       `SELECT title,
           slug,
