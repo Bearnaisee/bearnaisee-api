@@ -8,7 +8,7 @@ import { Recipes } from "../entities/Recipes";
 import generateGravatarUrl from "../helpers/generateGravatarUrl";
 
 export default (server: Application) => {
-  server.post("/user/create", async (req: Request, res: Response) => {
+  server.post("/users", async (req: Request, res: Response) => {
     if (!req?.body?.username?.trim()?.length || !req?.body?.email?.trim()?.length || !req?.body?.password?.length) {
       res.status(400).send({ msg: "Missing data", successful: false });
       return;
@@ -48,6 +48,7 @@ export default (server: Application) => {
     user.email = req.body.email.toLowerCase().trim();
     user.password = hashedPassword;
     user.role = await getRepository(UserRoles).findOne({ id: 1 });
+    user.avatarUrl = generateGravatarUrl(user.email);
 
     await userRepository
       .save({
@@ -353,6 +354,7 @@ export default (server: Application) => {
       res.status(400).send({ msg: "Missing userId" });
       return;
     }
+
     const user = await getRepository(Users).findOne({ id: req.body.userId });
 
     if (!user?.id) {
@@ -369,6 +371,7 @@ export default (server: Application) => {
     user.description = description?.slice(0, description?.length > 255 ? 255 : description?.length);
     user.location = location?.slice(0, location?.length > 40 ? 40 : location?.length);
     user.website = website?.slice(0, website?.length > 40 ? 40 : website?.length);
+    user.avatarUrl = generateGravatarUrl(user.email);
 
     await getRepository(Users)
       .save({
