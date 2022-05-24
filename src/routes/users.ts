@@ -218,7 +218,6 @@ export default (server: Application) => {
       userId: number;
       username: string;
       displayName: string;
-      userEmail: string;
       createdAt: string | Date;
       avatarUrl?: string;
     }[] = await getManager().query(
@@ -231,7 +230,7 @@ export default (server: Application) => {
         u.username as "author", 
         u.display_name as "displayName", 
         r.created_at AS "createdAt",
-        u.email AS "userEmail"
+        u.avatar_url AS "avatarUrl"
       FROM 
         recipes r 
         INNER JOIN users u ON u.id = r.user_id 
@@ -248,11 +247,6 @@ export default (server: Application) => {
       LIMIT $3;`,
       [userId, skip, take],
     );
-
-    for (let i = 0; i < recipes.length; i += 1) {
-      recipes[i].avatarUrl = generateGravatarUrl(recipes[i]?.userEmail);
-      recipes[i].userEmail = undefined;
-    }
 
     return res.status(200).send({
       feed: recipes,
@@ -340,8 +334,10 @@ export default (server: Application) => {
     );
 
     for (let i = 0; i < recipes?.length; i += 1) {
-      recipes[i].avatarUrl = generateGravatarUrl(recipes[i].email);
-      recipes[i].email = undefined;
+      if (!recipes[i].avatarUrl) {
+        recipes[i].avatarUrl = generateGravatarUrl(recipes[i].email);
+        recipes[i].email = undefined;
+      }
     }
 
     res.status(200).send({
